@@ -41,8 +41,10 @@ def convert_transaction_to_request(loopchain_block: 'LoopchainBlock', tx_dict: d
     params = {}
     request = {'method': 'icx_sendTransaction', 'params': params}
 
-    params['from'] = Address.from_string(tx_dict['from'])
-    params['to'] = convert_to_address(tx_dict['to'])
+    if "from" in tx_dict:
+        params['from'] = Address.from_string(tx_dict['from'])
+    if "to" in tx_dict:
+        params['to'] = convert_to_address(tx_dict['to'])
 
     if 'tx_hash' in tx_dict:
         params['txHash'] = bytes.fromhex(tx_dict['tx_hash'])
@@ -64,7 +66,26 @@ def convert_transaction_to_request(loopchain_block: 'LoopchainBlock', tx_dict: d
         if key in tx_dict:
             params[key] = tx_dict[key]
 
+    data_type: str = tx_dict.get("dataType", "")
+    if tx_dict.get("dataType", "") == "base":
+        params["data"] = _convert_base_transaction(tx_dict["data"])
+
     return request
+
+def _convert_base_transaction(data: dict) -> dict:
+    ret = {
+        "prep": {},
+        "result": {}
+    }
+    prep = data["prep"]
+    for key in prep:
+        ret["prep"][key] = int(prep[key], 16)
+
+    result = data["result"]
+    for key in result:
+        ret["result"][key] = int(result[key], 16)
+
+    return ret
 
 
 def convert_to_address(to: str) -> Union['Address', 'MalformedAddress']:

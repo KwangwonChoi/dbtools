@@ -41,6 +41,7 @@ class LoopchainBlock(object):
 
     @staticmethod
     def from_dict(block: dict) -> 'LoopchainBlock':
+        # print(block)
         version: str = block['version']
         prev_block_hash: bytes = bytes.fromhex(block['prevHash'][2:])
         merkle_tree_root_hash: bytes = bytes.fromhex(block['transactionsHash'][2:])
@@ -57,6 +58,7 @@ class LoopchainBlock(object):
         try:
             commit_state: bytes = bytes.fromhex(block['stateHash'][2:])
         except:
+            print('###############')
             commit_state: bytes = b''
 
         loopchain_block = LoopchainBlock(
