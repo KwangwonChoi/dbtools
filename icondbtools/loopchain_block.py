@@ -42,20 +42,20 @@ class LoopchainBlock(object):
     @staticmethod
     def from_dict(block: dict) -> 'LoopchainBlock':
         version: str = block['version']
-        prev_block_hash: bytes = bytes.fromhex(block['prev_block_hash'])
-        merkle_tree_root_hash: bytes = bytes.fromhex(block['merkle_tree_root_hash'])
-        timestamp: int = block['time_stamp']
-        block_hash: bytes = bytes.fromhex(block['block_hash'])
-        height: int = block['height']
+        prev_block_hash: bytes = bytes.fromhex(block['prevHash'][2:])
+        merkle_tree_root_hash: bytes = bytes.fromhex(block['transactionsHash'][2:])
+        timestamp: int = int(block['timestamp'], 16)
+        block_hash: bytes = bytes.fromhex(block['hash'][2:])
+        height: int = int(block['height'], 16)
 
-        peer_id = block['peer_id']
+        peer_id = block['leader']
         if peer_id:
             peer_id: 'Address' = Address.from_string(peer_id)
         else:
             peer_id = None
 
         try:
-            commit_state: bytes = bytes.fromhex(block['commit_state']['icon_dex'])
+            commit_state: bytes = bytes.fromhex(block['stateHash'][2:])
         except:
             commit_state: bytes = b''
 
@@ -69,6 +69,6 @@ class LoopchainBlock(object):
             peer_id=peer_id,
             commit_state=commit_state)
 
-        loopchain_block.transactions: dict = block['confirmed_transaction_list']
+        loopchain_block.transactions: dict = block['transactions']
 
         return loopchain_block
